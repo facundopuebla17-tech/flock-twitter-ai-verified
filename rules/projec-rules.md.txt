@@ -1,0 +1,23 @@
+This project is a Twitter clone for The Flock AI Verified challenge.
+
+Requirements:
+- FastAPI backend
+- PostgreSQL database
+- SQLAlchemy ORM
+- Alembic migrations
+- React + TypeScript frontend
+- TailwindCSS
+- JWT authentication
+- Pytest backend tests
+- React Testing Library frontend tests
+
+Coding standards:
+- Use clear naming
+- Add type hints
+- Write modular code
+- Keep files small and focused
+- Prefer service layer over business logic in routes
+- Generate tests together with features
+- Follow mobile-first design principles
+
+All generated code must be production-oriented and maintainable.
