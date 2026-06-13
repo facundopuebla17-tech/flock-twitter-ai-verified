@@ -1,2 +1,5 @@
-"""Pydantic schemas will be exported from this package."""
+"""Pydantic schemas exported from this package."""
 
+from app.schemas.user import UserCreate, UserResponse
+
+__all__ = ["UserCreate", "UserResponse"]
