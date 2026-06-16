@@ -1,2 +1,13 @@
-"""Business services will live in this package."""
+"""Business services exported from this package."""
 
+from app.services.auth import (
+    AuthService,
+    EmailAlreadyRegisteredError,
+    UsernameAlreadyTakenError,
+)
+
+__all__ = [
+    "AuthService",
+    "EmailAlreadyRegisteredError",
+    "UsernameAlreadyTakenError",
+]
