@@ -5,7 +5,7 @@ from app.models.user import User
 from app.repositories.user import UserRepository
 from app.schemas.user import UserCreate
 
-password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+password_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 
 class EmailAlreadyRegisteredError(Exception):
@@ -45,3 +45,20 @@ class AuthService:
             raise
 
         return user
+
+    def _raise_for_unique_violation(self, error: IntegrityError) -> None:
+        error_message = str(error.orig).lower() if error.orig is not None else str(error).lower()
+
+        if self._matches_email_constraint(error_message):
+            raise EmailAlreadyRegisteredError("Email is already registered.") from error
+
+        if self._matches_username_constraint(error_message):
+            raise UsernameAlreadyTakenError("Username is already taken.") from error
+
+    @staticmethod
+    def _matches_email_constraint(error_message: str) -> bool:
+        return "users_email_key" in error_message or "email" in error_message
+
+    @staticmethod
+    def _matches_username_constraint(error_message: str) -> bool:
+        return "users_username_key" in error_message or "username" in error_message
