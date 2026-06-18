@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.deps import get_auth_service
+from app.schemas.auth import Token, UserLogin
 from app.schemas.user import UserCreate, UserResponse
 from app.services.auth import (
     AuthService,
     EmailAlreadyRegisteredError,
+    InvalidCredentialsError,
     UsernameAlreadyTakenError,
 )
 
@@ -30,3 +32,21 @@ async def register_user(
         ) from exc
 
     return UserResponse.model_validate(user)
+
+
+@router.post("/login", response_model=Token)
+async def login_user(
+    user_login: UserLogin,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> Token:
+    try:
+        user = await auth_service.authenticate_user(user_login.email, user_login.password)
+    except InvalidCredentialsError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password.",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc
+
+    access_token = auth_service.create_access_token(user)
+    return Token(access_token=access_token, token_type="bearer")

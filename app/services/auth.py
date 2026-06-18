@@ -1,6 +1,10 @@
+from datetime import UTC, datetime, timedelta
+
+import jwt
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 
+from app.core.config import settings
 from app.models.user import User
 from app.repositories.user import UserRepository
 from app.schemas.user import UserCreate
@@ -16,9 +20,40 @@ class UsernameAlreadyTakenError(Exception):
     """Raised when attempting to register with a username that already exists."""
 
 
+class InvalidCredentialsError(Exception):
+    """Raised when login credentials do not match a user."""
+
+
 class AuthService:
     def __init__(self, user_repository: UserRepository) -> None:
         self.user_repository = user_repository
+
+    async def authenticate_user(self, email: str, password: str) -> User:
+        user = await self.user_repository.get_by_email(email)
+        if user is None or not self.verify_password(password, user.password_hash):
+            raise InvalidCredentialsError("Invalid email or password.")
+
+        return user
+
+    def create_access_token(self, user: User) -> str:
+        expires_at = datetime.now(UTC) + timedelta(
+            minutes=settings.jwt_access_token_expire_minutes
+        )
+        payload = {
+            "sub": str(user.id),
+            "email": user.email,
+            "username": user.username,
+            "exp": expires_at,
+        }
+        return jwt.encode(
+            payload,
+            settings.jwt_secret_key,
+            algorithm=settings.jwt_algorithm,
+        )
+
+    @staticmethod
+    def verify_password(plain_password: str, password_hash: str) -> bool:
+        return password_context.verify(plain_password, password_hash)
 
     async def register_user(self, user_create: UserCreate) -> User:
         existing_user_by_email = await self.user_repository.get_by_email(user_create.email)
