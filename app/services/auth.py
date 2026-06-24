@@ -1,6 +1,9 @@
 from datetime import UTC, datetime, timedelta
+from uuid import UUID
 
 import jwt
+from jwt import ExpiredSignatureError
+from jwt import InvalidTokenError as JwtInvalidTokenError
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 
@@ -22,6 +25,10 @@ class UsernameAlreadyTakenError(Exception):
 
 class InvalidCredentialsError(Exception):
     """Raised when login credentials do not match a user."""
+
+
+class InvalidTokenError(Exception):
+    """Raised when an access token is invalid, expired, or references no user."""
 
 
 class AuthService:
@@ -50,6 +57,27 @@ class AuthService:
             settings.jwt_secret_key,
             algorithm=settings.jwt_algorithm,
         )
+
+    async def get_user_from_token(self, token: str) -> User:
+        try:
+            payload = jwt.decode(
+                token,
+                settings.jwt_secret_key,
+                algorithms=[settings.jwt_algorithm],
+            )
+            subject = payload.get("sub")
+            if subject is None:
+                raise ValueError("Token subject is missing.")
+
+            user_id = UUID(subject)
+        except (ExpiredSignatureError, JwtInvalidTokenError, ValueError) as exc:
+            raise InvalidTokenError("Invalid or expired access token.") from exc
+
+        user = await self.user_repository.get_by_id(user_id)
+        if user is None:
+            raise InvalidTokenError("Invalid or expired access token.")
+
+        return user
 
     @staticmethod
     def verify_password(plain_password: str, password_hash: str) -> bool:
