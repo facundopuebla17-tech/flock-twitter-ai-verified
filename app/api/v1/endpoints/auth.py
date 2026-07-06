@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.deps import get_auth_service
-from app.schemas.auth import Token, UserLogin
+from app.schemas.auth import Token
 from app.schemas.user import UserCreate, UserResponse
 from app.services.auth import (
     AuthService,
@@ -36,11 +37,11 @@ async def register_user(
 
 @router.post("/login", response_model=Token)
 async def login_user(
-    user_login: UserLogin,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     auth_service: AuthService = Depends(get_auth_service),
 ) -> Token:
     try:
-        user = await auth_service.authenticate_user(user_login.email, user_login.password)
+        user = await auth_service.authenticate_user(form_data.username, form_data.password)
     except InvalidCredentialsError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

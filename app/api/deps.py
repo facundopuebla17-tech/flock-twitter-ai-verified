@@ -6,8 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import async_session_factory
 from app.models.user import User
+from app.repositories.tweet import TweetRepository
 from app.repositories.user import UserRepository
 from app.services.auth import AuthService, InvalidTokenError
+from app.services.tweet import TweetService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
@@ -21,10 +23,20 @@ def get_user_repository(session: AsyncSession = Depends(get_db_session)) -> User
     return UserRepository(session)
 
 
+def get_tweet_repository(session: AsyncSession = Depends(get_db_session)) -> TweetRepository:
+    return TweetRepository(session)
+
+
 def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository),
 ) -> AuthService:
     return AuthService(user_repository)
+
+
+def get_tweet_service(
+    tweet_repository: TweetRepository = Depends(get_tweet_repository),
+) -> TweetService:
+    return TweetService(tweet_repository)
 
 
 async def get_current_user(
