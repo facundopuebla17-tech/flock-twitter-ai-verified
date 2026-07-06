@@ -2,6 +2,7 @@ from collections.abc import Mapping
 from typing import Any
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.tweet import Tweet
@@ -20,6 +21,11 @@ class TweetRepository:
 
     async def get_by_id(self, tweet_id: UUID) -> Tweet | None:
         return await self.session.get(Tweet, tweet_id)
+
+    async def list_tweets(self, limit: int, offset: int) -> list[Tweet]:
+        statement = select(Tweet).order_by(Tweet.created_at.desc()).limit(limit).offset(offset)
+        result = await self.session.execute(statement)
+        return list(result.scalars().all())
 
     async def delete(self, tweet: Tweet) -> None:
         await self.session.delete(tweet)

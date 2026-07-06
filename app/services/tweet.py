@@ -32,6 +32,9 @@ class TweetService:
 
         return tweet
 
+    async def list_tweets(self, limit: int, offset: int) -> list[Tweet]:
+        return await self.tweet_repository.list_tweets(limit, offset)
+
     async def delete_tweet(self, tweet_id: UUID, user: User) -> None:
         tweet = await self.get_tweet(tweet_id)
         if tweet.author_id != user.id:

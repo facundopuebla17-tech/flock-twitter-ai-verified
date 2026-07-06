@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.api.deps import get_current_user, get_tweet_service
 from app.models.user import User
@@ -22,6 +22,16 @@ async def create_tweet(
 ) -> TweetResponse:
     tweet = await tweet_service.create_tweet(current_user, tweet_create)
     return TweetResponse.model_validate(tweet)
+
+
+@router.get("", response_model=list[TweetResponse])
+async def list_tweets(
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    tweet_service: TweetService = Depends(get_tweet_service),
+) -> list[TweetResponse]:
+    tweets = await tweet_service.list_tweets(limit, offset)
+    return [TweetResponse.model_validate(tweet) for tweet in tweets]
 
 
 @router.get("/{tweet_id}", response_model=TweetResponse)
