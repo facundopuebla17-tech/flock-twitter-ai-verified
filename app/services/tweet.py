@@ -3,6 +3,7 @@ from uuid import UUID
 from app.models.tweet import Tweet
 from app.models.user import User
 from app.repositories.tweet import TweetRepository
+from app.repositories.user import UserRepository
 from app.schemas.tweet import TweetCreate
 
 
@@ -14,9 +15,18 @@ class PermissionDeniedError(Exception):
     """Raised when a user is not allowed to modify a tweet."""
 
 
+class UserNotFoundError(Exception):
+    """Raised when a requested user does not exist."""
+
+
 class TweetService:
-    def __init__(self, tweet_repository: TweetRepository) -> None:
+    def __init__(
+        self,
+        tweet_repository: TweetRepository,
+        user_repository: UserRepository,
+    ) -> None:
         self.tweet_repository = tweet_repository
+        self.user_repository = user_repository
 
     async def create_tweet(self, user: User, tweet_create: TweetCreate) -> Tweet:
         tweet_data = {
@@ -34,6 +44,18 @@ class TweetService:
 
     async def list_tweets(self, limit: int, offset: int) -> list[Tweet]:
         return await self.tweet_repository.list_tweets(limit, offset)
+
+    async def list_tweets_by_author(
+        self,
+        author_id: UUID,
+        limit: int,
+        offset: int,
+    ) -> list[Tweet]:
+        user = await self.user_repository.get_by_id(author_id)
+        if user is None:
+            raise UserNotFoundError("User not found.")
+
+        return await self.tweet_repository.list_tweets_by_author(author_id, limit, offset)
 
     async def delete_tweet(self, tweet_id: UUID, user: User) -> None:
         tweet = await self.get_tweet(tweet_id)

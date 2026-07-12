@@ -35,8 +35,9 @@ def get_auth_service(
 
 def get_tweet_service(
     tweet_repository: TweetRepository = Depends(get_tweet_repository),
+    user_repository: UserRepository = Depends(get_user_repository),
 ) -> TweetService:
-    return TweetService(tweet_repository)
+    return TweetService(tweet_repository, user_repository)
 
 
 async def get_current_user(

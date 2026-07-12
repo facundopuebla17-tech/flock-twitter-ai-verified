@@ -11,6 +11,7 @@ from app.services.tweet import (
     PermissionDeniedError,
     TweetNotFoundError,
     TweetService,
+    UserNotFoundError,
 )
 
 __all__ = [
@@ -21,5 +22,6 @@ __all__ = [
     "PermissionDeniedError",
     "TweetNotFoundError",
     "TweetService",
+    "UserNotFoundError",
     "UsernameAlreadyTakenError",
 ]

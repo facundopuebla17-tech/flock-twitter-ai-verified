@@ -27,6 +27,22 @@ class TweetRepository:
         result = await self.session.execute(statement)
         return list(result.scalars().all())
 
+    async def list_tweets_by_author(
+        self,
+        author_id: UUID,
+        limit: int,
+        offset: int,
+    ) -> list[Tweet]:
+        statement = (
+            select(Tweet)
+            .where(Tweet.author_id == author_id)
+            .order_by(Tweet.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+        result = await self.session.execute(statement)
+        return list(result.scalars().all())
+
     async def delete(self, tweet: Tweet) -> None:
         await self.session.delete(tweet)
         await self.session.commit()
