@@ -2,7 +2,7 @@
 
 from app.schemas.auth import Token
 from app.schemas.tweet import TweetCreate, TweetResponse
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate, UserResponse, UserSummaryResponse
 
 __all__ = [
     "Token",
@@ -10,4 +10,5 @@ __all__ = [
     "TweetResponse",
     "UserCreate",
     "UserResponse",
+    "UserSummaryResponse",
 ]

@@ -5,6 +5,7 @@ from app.models.user import User
 from app.repositories.tweet import TweetRepository
 from app.repositories.user import UserRepository
 from app.schemas.tweet import TweetCreate
+from app.services.exceptions import UserNotFoundError
 
 
 class TweetNotFoundError(Exception):
@@ -13,10 +14,6 @@ class TweetNotFoundError(Exception):
 
 class PermissionDeniedError(Exception):
     """Raised when a user is not allowed to modify a tweet."""
-
-
-class UserNotFoundError(Exception):
-    """Raised when a requested user does not exist."""
 
 
 class TweetService:

@@ -7,16 +7,26 @@ from app.services.auth import (
     InvalidTokenError,
     UsernameAlreadyTakenError,
 )
+from app.services.exceptions import UserNotFoundError
+from app.services.follow import (
+    AlreadyFollowingError,
+    CannotFollowYourselfError,
+    FollowRelationshipNotFoundError,
+    FollowService,
+)
 from app.services.tweet import (
     PermissionDeniedError,
     TweetNotFoundError,
     TweetService,
-    UserNotFoundError,
 )
 
 __all__ = [
+    "AlreadyFollowingError",
     "AuthService",
+    "CannotFollowYourselfError",
     "EmailAlreadyRegisteredError",
+    "FollowRelationshipNotFoundError",
+    "FollowService",
     "InvalidCredentialsError",
     "InvalidTokenError",
     "PermissionDeniedError",

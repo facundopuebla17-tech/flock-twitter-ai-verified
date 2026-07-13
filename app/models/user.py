@@ -11,6 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
+    from app.models.follow import Follow
     from app.models.tweet import Tweet
 
 
@@ -35,4 +36,14 @@ class User(Base):
     tweets: Mapped[list[Tweet]] = relationship(
         back_populates="author",
         cascade="all, delete-orphan",
+    )
+    following_relationships: Mapped[list[Follow]] = relationship(
+        back_populates="follower",
+        cascade="all, delete-orphan",
+        foreign_keys="Follow.follower_id",
+    )
+    follower_relationships: Mapped[list[Follow]] = relationship(
+        back_populates="following",
+        cascade="all, delete-orphan",
+        foreign_keys="Follow.following_id",
     )

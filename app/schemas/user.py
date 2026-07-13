@@ -20,3 +20,11 @@ class UserResponse(BaseModel):
     avatar_url: str | None
     created_at: datetime
 
+
+class UserSummaryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    username: str
+    bio: str | None
+    avatar_url: str | None
