@@ -8,6 +8,7 @@ from app.services.auth import (
     UsernameAlreadyTakenError,
 )
 from app.services.exceptions import UserNotFoundError
+from app.services.feed import FeedService
 from app.services.follow import (
     AlreadyFollowingError,
     CannotFollowYourselfError,
@@ -25,6 +26,7 @@ __all__ = [
     "AuthService",
     "CannotFollowYourselfError",
     "EmailAlreadyRegisteredError",
+    "FeedService",
     "FollowRelationshipNotFoundError",
     "FollowService",
     "InvalidCredentialsError",

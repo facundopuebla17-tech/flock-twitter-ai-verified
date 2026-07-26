@@ -6,10 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import async_session_factory
 from app.models.user import User
+from app.repositories.feed import FeedRepository
 from app.repositories.follow import FollowRepository
 from app.repositories.tweet import TweetRepository
 from app.repositories.user import UserRepository
 from app.services.auth import AuthService, InvalidTokenError
+from app.services.feed import FeedService
 from app.services.follow import FollowService
 from app.services.tweet import TweetService
 
@@ -33,6 +35,10 @@ def get_follow_repository(session: AsyncSession = Depends(get_db_session)) -> Fo
     return FollowRepository(session)
 
 
+def get_feed_repository(session: AsyncSession = Depends(get_db_session)) -> FeedRepository:
+    return FeedRepository(session)
+
+
 def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository),
 ) -> AuthService:
@@ -51,6 +57,12 @@ def get_follow_service(
     user_repository: UserRepository = Depends(get_user_repository),
 ) -> FollowService:
     return FollowService(follow_repository, user_repository)
+
+
+def get_feed_service(
+    feed_repository: FeedRepository = Depends(get_feed_repository),
+) -> FeedService:
+    return FeedService(feed_repository)
 
 
 async def get_current_user(
