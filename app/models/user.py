@@ -12,6 +12,7 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.follow import Follow
+    from app.models.like import Like
     from app.models.tweet import Tweet
 
 
@@ -46,4 +47,9 @@ class User(Base):
         back_populates="following",
         cascade="all, delete-orphan",
         foreign_keys="Follow.following_id",
+    )
+    likes: Mapped[list[Like]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        foreign_keys="Like.user_id",
     )

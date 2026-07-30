@@ -8,11 +8,13 @@ from app.db.session import async_session_factory
 from app.models.user import User
 from app.repositories.feed import FeedRepository
 from app.repositories.follow import FollowRepository
+from app.repositories.like import LikeRepository
 from app.repositories.tweet import TweetRepository
 from app.repositories.user import UserRepository
 from app.services.auth import AuthService, InvalidTokenError
 from app.services.feed import FeedService
 from app.services.follow import FollowService
+from app.services.like import LikeService
 from app.services.tweet import TweetService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -39,6 +41,10 @@ def get_feed_repository(session: AsyncSession = Depends(get_db_session)) -> Feed
     return FeedRepository(session)
 
 
+def get_like_repository(session: AsyncSession = Depends(get_db_session)) -> LikeRepository:
+    return LikeRepository(session)
+
+
 def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository),
 ) -> AuthService:
@@ -63,6 +69,13 @@ def get_feed_service(
     feed_repository: FeedRepository = Depends(get_feed_repository),
 ) -> FeedService:
     return FeedService(feed_repository)
+
+
+def get_like_service(
+    like_repository: LikeRepository = Depends(get_like_repository),
+    tweet_repository: TweetRepository = Depends(get_tweet_repository),
+) -> LikeService:
+    return LikeService(like_repository, tweet_repository)
 
 
 async def get_current_user(

@@ -5,11 +5,7 @@ from app.models.user import User
 from app.repositories.tweet import TweetRepository
 from app.repositories.user import UserRepository
 from app.schemas.tweet import TweetCreate
-from app.services.exceptions import UserNotFoundError
-
-
-class TweetNotFoundError(Exception):
-    """Raised when a requested tweet does not exist."""
+from app.services.exceptions import TweetNotFoundError, UserNotFoundError
 
 
 class PermissionDeniedError(Exception):

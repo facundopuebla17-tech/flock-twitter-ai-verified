@@ -2,12 +2,13 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from app.api.deps import get_current_user, get_tweet_service
+from app.api.deps import get_current_user, get_like_service, get_tweet_service
 from app.models.user import User
 from app.schemas.tweet import TweetCreate, TweetResponse
+from app.services.exceptions import TweetNotFoundError
+from app.services.like import LikeService
 from app.services.tweet import (
     PermissionDeniedError,
-    TweetNotFoundError,
     TweetService,
 )
 
@@ -48,6 +49,36 @@ async def get_tweet(
         ) from exc
 
     return TweetResponse.model_validate(tweet)
+
+
+@router.put("/{tweet_id}/like", status_code=status.HTTP_204_NO_CONTENT)
+async def like_tweet(
+    tweet_id: UUID,
+    current_user: User = Depends(get_current_user),
+    like_service: LikeService = Depends(get_like_service),
+) -> None:
+    try:
+        await like_service.like_tweet(current_user, tweet_id)
+    except TweetNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tweet not found.",
+        ) from exc
+
+
+@router.delete("/{tweet_id}/like", status_code=status.HTTP_204_NO_CONTENT)
+async def unlike_tweet(
+    tweet_id: UUID,
+    current_user: User = Depends(get_current_user),
+    like_service: LikeService = Depends(get_like_service),
+) -> None:
+    try:
+        await like_service.unlike_tweet(current_user, tweet_id)
+    except TweetNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tweet not found.",
+        ) from exc
 
 
 @router.delete("/{tweet_id}", status_code=status.HTTP_204_NO_CONTENT)
